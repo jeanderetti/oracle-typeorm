@@ -1,6 +1,8 @@
 const typeorm = require('typeorm')
 const dbConfig = require('../../configuration/db')
 
+const connection = require('../../connection/db')
+
 module.exports = (function () {
 
   function createAndUpdateUser(request) {
@@ -30,7 +32,10 @@ module.exports = (function () {
 
   function readUser(request) {
     return new Promise((resolve, reject) => {
-      typeorm.createConnection(dbConfig).then(conn => {
+      // typeorm.createConnection(dbConfig).then(conn => {
+      // const userRepository = conn.getRepository('User')
+      (async () => {
+        const conn = await connection.conn()
         const userRepository = conn.getRepository('User')
 
         if (request.query.id) {
@@ -44,9 +49,11 @@ module.exports = (function () {
             .find()
             .then(users => { return resolve(users) })
             .catch(err => { return reject(err) })
-            .finally(() => conn.close())
+          // .finally(() => conn.close())
+          // .finally(() => connection.conn().close())
         }
-      }).catch(() => { return reject('There was an error connecting to the database') })
+      })()
+      // }).catch(() => { return reject('There was an error connecting to the database') })
     })
   }
 
